@@ -3,13 +3,16 @@ package main
 import (
 	"fmt"
 	"net"
+	"time"
 )
 
 type Client struct {
-	Name string
-	Addr string
-	c    chan string
-	conn net.Conn
+	Name           string
+	Addr           string
+	c              chan string
+	conn           net.Conn
+	onLineTime     time.Time
+	lastActiveTime time.Time
 }
 
 func newClient(conn net.Conn) *Client {
@@ -22,7 +25,10 @@ func newClient(conn net.Conn) *Client {
 	go client.listenMessage()
 	return client
 }
-func (thisClient Client) listenMessage() {
+func (thisClient *Client) online() {
+
+}
+func (thisClient *Client) listenMessage() {
 	for {
 		if thisClient.c == nil {
 			break

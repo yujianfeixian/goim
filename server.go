@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"time"
 )
 
 type Server struct {
@@ -48,6 +49,11 @@ func (thisServer *Server) start() {
 
 func (thisServer *Server) process(conn *net.TCPConn) {
 	defer conn.Close()
+	client := newClient(conn)
+	thisServer.OmLock.Lock()
+	thisServer.OnlineMap[conn.RemoteAddr().String()+time.Now().String()] = client
+	thisServer.OmLock.Unlock()
+	thisServer.broadCast(*client, fmt.Sprintf("来自%s的用户在%s的时候上线了", client.Name, time.Now().String()))
 	for {
 		buf := make([]byte, 512)
 		n, err := conn.Read(buf)
