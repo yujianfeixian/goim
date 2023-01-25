@@ -1,5 +1,7 @@
 package main
 
+import "goim/server"
+
 func main() {
-	newServer("0.0.0.0", 8080).start()
+	server.NewServer("0.0.0.0", 8080).Start()
 }
