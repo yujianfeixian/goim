@@ -72,7 +72,7 @@ func (thisServer *Server) process(conn *net.TCPConn) {
 				fmt.Println("read from conn failed, err:", err)
 				return
 			}
-			msg := string(buf[:n-1])
+			msg := string(buf[:n])
 			fmt.Println("read from client, data:", msg)
 			if len(msg) >= 4 && msg[:3] == "to|" {
 				to := clientName
