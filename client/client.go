@@ -26,9 +26,6 @@ func NewClient(name string, addr string, conn net.Conn) *Client {
 	go client.listenMessage()
 	return client
 }
-func (thisClient *Client) online() {
-
-}
 func (thisClient *Client) listenMessage() {
 	for {
 		if thisClient.c == nil {

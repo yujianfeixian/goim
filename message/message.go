@@ -1,57 +1,44 @@
 package message
 
-import (
-	"encoding/json"
-	"goim/client"
-)
-
 type Message struct {
-	source    *client.Client
-	target    *client.Client
+	source    string
+	target    string
 	msgHeader map[string]string
 	msgBody   interface{}
 }
 
-func (thisMessage *Message) Source() *client.Client {
-	return thisMessage.source
+func (m *Message) Source() string {
+	return m.source
 }
 
-func (thisMessage *Message) SetSource(source *client.Client) {
-	thisMessage.source = source
+func (m *Message) SetSource(source string) {
+	m.source = source
 }
 
-func (thisMessage *Message) Target() *client.Client {
-	return thisMessage.target
+func (m *Message) Target() string {
+	return m.target
 }
 
-func (thisMessage *Message) SetTarget(target *client.Client) {
-	thisMessage.target = target
+func (m *Message) SetTarget(target string) {
+	m.target = target
 }
 
-func (thisMessage *Message) MsgHeader() map[string]string {
-	return thisMessage.msgHeader
+func (m *Message) MsgHeader() map[string]string {
+	return m.msgHeader
 }
 
-func (thisMessage *Message) SetMsgHeader(msgHeader map[string]string) {
-	thisMessage.msgHeader = msgHeader
+func (m *Message) SetMsgHeader(msgHeader map[string]string) {
+	m.msgHeader = msgHeader
 }
 
-func (thisMessage *Message) MsgBody() interface{} {
-	return thisMessage.msgBody
+func (m *Message) MsgBody() interface{} {
+	return m.msgBody
 }
 
-func (thisMessage *Message) SetMsgBody(msgBody interface{}) {
-	thisMessage.msgBody = msgBody
+func (m *Message) SetMsgBody(msgBody interface{}) {
+	m.msgBody = msgBody
 }
 
-func NewMessage(source *client.Client, target *client.Client, msgHeader map[string]string, msgBody interface{}) *Message {
+func NewMessage(source string, target string, msgHeader map[string]string, msgBody interface{}) *Message {
 	return &Message{source: source, target: target, msgHeader: msgHeader, msgBody: msgBody}
-}
-
-func (thisMessage *Message) JsonMessage() string {
-	value, err := json.Marshal(thisMessage)
-	if err != nil {
-		return ""
-	}
-	return string(value)
 }

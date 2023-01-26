@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	messages "goim/message"
+	"goim/message"
 	"goim/onlineContext"
 	"net"
 	"sync"
@@ -33,7 +33,13 @@ func (thisServer *Server) Start() {
 		fmt.Println("listen failed, err:", err)
 		return
 	}
-	defer tcpListener.Close()
+	fmt.Println("start server success, listen:", thisServer.Ip, ":", thisServer.Port)
+	defer func(tcpListener *net.TCPListener) {
+		err := tcpListener.Close()
+		if err != nil {
+			fmt.Println("close tcpListener failed, err:", err)
+		}
+	}(tcpListener)
 	for {
 		tcpConn, err := tcpListener.AcceptTCP()
 		if err != nil {
@@ -60,16 +66,30 @@ func (thisServer *Server) process(conn *net.TCPConn) {
 	thisServer.OmLock.Unlock()
 	go func() {
 		for {
-			buf := make([]byte, 512)
+			buf := make([]byte, 4096)
 			n, err := conn.Read(buf)
 			if err != nil {
 				fmt.Println("read from conn failed, err:", err)
 				return
-
 			}
-			fmt.Println("read from client, data:", string(buf[:n]))
+			msg := string(buf[:n-1])
+			fmt.Println("read from client, data:", msg)
+			if len(msg) >= 4 && msg[:3] == "to|" {
+				to := clientName
+				content := msg[3:]
+				newMessage := message.NewMessage(to, clientName, nil, content)
+				thisServer.OnlineContext.RouteMessage(newMessage)
+			} else if msg == "hello" {
+				newMessage := message.NewMessage("", clientName, nil, msg)
+				thisServer.OnlineContext.RouteMessage(newMessage)
+			} else if len(msg) >= 8 && msg[:7] == "rename|" {
+				newName := msg[7:]
+				clientName = newName
+				thisServer.OnlineContext.RenameClient(clientName, newName)
+			}
 			isActive <- true
 		}
+
 	}()
 	for {
 		select {
@@ -82,13 +102,4 @@ func (thisServer *Server) process(conn *net.TCPConn) {
 			thisServer.OmLock.Unlock()
 		}
 	}
-}
-func (thisServer *Server) broadCast(msg string) {
-	thisServer.OmLock.Lock()
-	defer thisServer.OmLock.Unlock()
-	message := messages.NewMessage(nil, nil, nil, msg)
-	thisServer.OnlineContext.ServerChan() <- message.JsonMessage()
-}
-func (thisServer *Server) processMessage() {
-	//TODO 服务端路由消息
 }
